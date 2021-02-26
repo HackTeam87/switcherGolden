@@ -1,97 +1,217 @@
 <template>
   <div class="main">
-    <h2 style="color:orange;">OnuDetail</h2>
-    <v-container>
-      <v-row no-gutters>
+    <v-container class="grey lighten-5">
+
+      <notifications group="foo"/>
+
+      <v-row class="mb-6" no-gutters>
+        <v-col cols12 sm12>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-row align="center" justify="space-between">
+
+              <v-btn @click="BackToHome()" color="danger">
+                <v-icon left>
+                  mdi-arrow-collapse-left
+                </v-icon>
+                back
+              </v-btn>
 
 
-        <v-col cols="12" sm="6" offset-sm="3">
-          <v-card v-for="i in Onu" :key="i._id" hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-card-title class="align-center">
-              <v-row
-                  align="center"
-                  justify="space-between"
+              <v-btn @click="RebootOnu()"
+                     color="primary">
+                <v-icon>
+                  mdi-autorenew
+                </v-icon>
+                reload
+              </v-btn>
+
+
+              <v-dialog
+                  transition="dialog-top-transition"
+                  max-width="600"
               >
-                <v-chip
-                    class="ma-2"
-                    label
-                    color="success"
-                    text-color="white"
-                >
-                  <v-icon left>
-                    mdi-arrow-expand-all
-                  </v-icon>
-                  Onu {{ i.interface }}
-                </v-chip>
-                <v-btn color="primary" @click="RebootOnu()">
-                  <v-icon>
-                    mdi-autorenew
-                  </v-icon>
-                </v-btn>
-                <v-btn color="error">
-                  <v-icon>
-                    mdi-delete
-                  </v-icon>
-                </v-btn>
-              </v-row>
-            </v-card-title>
-            <v-divider></v-divider>
-            <v-img class="white--text align-center" height="70px"
-                   src="@/assets/img/onu/picotel-e710.webp"
-            ></v-img>
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn color="error" v-bind="attrs" v-on="on">
+                    <v-icon>
+                      mdi-delete
+                    </v-icon>
+                    delete
+                  </v-btn>
+                </template>
+                <template v-slot:default="dialog">
+                  <v-card>
+                    <v-toolbar color="error" dark>
+                      do you really want to delete onu?
+                    </v-toolbar>
+                    <v-card-actions class="justify-end">
+                      <v-btn text
+                             @click="DeleteOnu() ,dialog.value = false"
+                      >
+                        Delete
+                      </v-btn>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                          text
+                          @click="dialog.value = false"
+                      >Close
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </template>
+              </v-dialog>
+
+
+            </v-row>
+          </v-card>
+        </v-col>
+      </v-row>
+      <v-row class="mb-6" no-gutters>
+        <v-col cols12 sm12>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-row align="center" justify="space-between" v-for="i in Info" :key="i._id">
+
+              <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
+                <span>onu: {{ i.interface }}</span>
+              </v-chip>
+              <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
+                status: <span style="color:#00C853"> {{ i.status }}</span>
+              </v-chip>
+              <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
+                <span>model: {{ i.model }}</span>
+              </v-chip>
+              <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
+                <span>ver_software: {{ i.ver_software }}</span>
+              </v-chip>
+              <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
+                <span>ver_hardware: {{ i.ver_hardware }}</span>
+              </v-chip>
+              <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
+                <span>vendor: {{ i.vendor }}</span>
+              </v-chip>
+
+            </v-row>
+          </v-card>
+        </v-col>
+      </v-row>
+
+      <v-row class="mb-6" no-gutters>
+
+        <v-col cols12 sm6>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
             <v-list>
 
               <v-list-item>
-                <v-list-item-action>
-                  <v-chip class="ma-2" label text-color="white">
-                    <v-icon>mdi-label</v-icon>
-                    Описание: <a href="http://service.golden.net.ua/abonents/detail?agreement=1404">1404</a>
-                  </v-chip>
-                </v-list-item-action>
+                <p class="title">Mac_Address</p>
+              </v-list-item>
+              <v-list-item>
+                <p class="title">Vlan_Id</p>
+              </v-list-item>
+
+            </v-list>
+          </v-card>
+        </v-col>
+        <v-col cols12 sm6>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-list v-for="i in Fdb" :key="i._id">
+
+              <v-list-item>
+                <p class="subtitle-1 text-left" style="color:#696969">{{ i.mac_address }}</p>
+              </v-list-item>
+              <v-list-item>
+                <p class="subtitle-1 text-left" style="color:#00C853">{{ i.vlan_id }}</p>
+              </v-list-item>
+
+            </v-list>
+          </v-card>
+        </v-col>
+
+
+      </v-row>
+
+      <v-row class="mb-6" no-gutters>
+
+        <v-col cols12 sm6>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-list>
+
+              <v-list-item>
+                <p class="title"> Distance
+                </p>
               </v-list-item>
 
               <v-list-item>
-                <v-list-item-action>
-                  <v-chip class="ma-2 light-blue accent-3" label text-color="white">
-                    <v-icon>mdi-label</v-icon>
-                    rx: {{ i.rx }}
-                  </v-chip>
-                </v-list-item-action>
-                <v-list-item-action>
-                  <v-chip class="ma-2 light-blue accent-3" label text-color="white">
-                    <v-icon>mdi-label</v-icon>
-                    rx: {{ i.tx }}
-                  </v-chip>
-                </v-list-item-action>
+                <p class="title"> Temp</p>
               </v-list-item>
 
               <v-list-item>
-                <v-list-item-action>
-                  <v-chip class="ma-2 light-blue accent-3" label text-color="white">
-                    <v-icon>mdi-label</v-icon>
-                    Растояние: {{ i.distance }}
-                  </v-chip>
-                </v-list-item-action>
+                <p class="title"> Votage</p>
+              </v-list-item>
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <p class="title"> Rx</p>
               </v-list-item>
 
               <v-list-item>
+                <p class="title"> Tx</p>
+              </v-list-item>
 
-                <v-list-item-action>
-                  <v-chip class="ma-2 light-blue accent-3" label text-color="white">
-                    <v-icon>mdi-label</v-icon>
-                    voltage : {{ i.voltage }}
-                  </v-chip>
-                </v-list-item-action>
 
+            </v-list>
+          </v-card>
+        </v-col>
+        <v-col cols12 sm6>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-list v-for="i in Optical" :key="i._id">
+
+              <v-list-item>
+                <p class="subtitle-1 text-left">{{ i.distance }} m</p>
               </v-list-item>
 
               <v-list-item>
-                <v-list-item-action>
-                  <v-chip class="ma-2 light-blue accent-3" label text-color="white">
-                    <v-icon>mdi-label</v-icon>
-                    Температура : {{ i.temp }}
-                  </v-chip>
-                </v-list-item-action>
+                <p class="subtitle-1 text-left">{{ i.temp }} c</p>
+              </v-list-item>
+
+              <v-list-item>
+                <p class="subtitle-1 text-left">{{ i.voltage }} v</p>
+              </v-list-item>
+              <v-divider></v-divider>
+
+              <v-list-item>
+                <p class="subtitle-1 text-left">{{ i.rx }}</p>
+              </v-list-item>
+
+              <v-list-item>
+                <p class="subtitle-1 text-left">{{ i.tx }}</p>
+              </v-list-item>
+
+
+            </v-list>
+          </v-card>
+        </v-col>
+
+
+      </v-row>
+
+      <v-row class="mb-6" no-gutters>
+
+        <v-col cols12 sm6>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-list>
+
+              <v-list-item>
+                <p class="title"> Description</p>
+              </v-list-item>
+
+            </v-list>
+          </v-card>
+        </v-col>
+        <v-col cols12 sm6>
+          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <v-list>
+
+              <v-list-item>
+                <p class="title"> 1404</p>
               </v-list-item>
 
             </v-list>
@@ -99,6 +219,7 @@
         </v-col>
 
       </v-row>
+
     </v-container>
   </div>
 </template>
@@ -108,34 +229,68 @@ export default {
   name: 'OnuDetail',
   props: ['ip', 'onu'],
   data: () => ({
-    Onu: []
+    Info: [],
+    Optical: [],
+    Fdb: [],
   }),
   created() {
-    this.DetailOnu()
+    this.GeneralInfo()
+    this.FdbInfo()
+    this.OpticalInfo()
   },
   methods: {
-    async DetailOnu() {
+    async GeneralInfo() {
+      const response = await this.$api.auth.getAPI('/pon_onts_general_info?ip=' + this.ip + '&interface=' + this.onu)
+      const Info = response.data.data
+      this.Info = Info
+    },
+    async OpticalInfo() {
       const response = await this.$api.auth.getAPI('/pon_onts_optical?ip=' + this.ip + '&interface=' + this.onu)
-      const data = response.data.data
-      this.Onu = data
-      console.log(this.Onu)
+      const Optical = response.data.data
+      this.Optical = Optical
+    },
+    async FdbInfo() {
+      const response = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.ip + '&interface=' + this.onu)
+      const Fdb = response.data.data
+      this.Fdb = Fdb
+      console.log(this.Fdb)
     },
     async RebootOnu() {
       const response = await this.$api.auth.getAPI('/pon_ont_reboot?ip=' + this.ip + '&interface=' + this.onu)
       const data = response.data
+      if (data.statusCode === 200) {
+        this.$notify({
+          group: 'foo',
+          title: 'Onu successfully reloaded',
+          position: 'top left',
+          type: 'success',
+          duration: 5000
+        })
+      }
       console.log(data.statusCode)
     },
-  }
+    async DeleteOnu() {
+      const response = await this.$api.auth.getAPI('/pon_ont_delete?ip=' + this.ip + '&interface=' + this.onu)
+      const Delete = response.data
+      if (Delete.statusCode === 200) {
+        this.$notify({
+          group: 'foo',
+          title: 'Onu successfully deleted',
+          position: 'top left',
+          type: 'error',
+          duration: 5000
+        })
+      }
+      console.log('delete onu')
+    },
+    BackToHome() {
+      window.open('/?ip=' + this.ip, '_blank')
+    }
+  },
+
 
 }
 </script>
 
-<style scope>
 
-.main, a {
-  font-family: 'Roboto', sans-serif;
-  text-align: center;
-  text-decoration: none;
-}
-</style>
 
