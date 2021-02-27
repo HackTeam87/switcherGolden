@@ -1,5 +1,6 @@
 <template>
   <div class="main">
+
     <v-container class="grey lighten-5">
 
       <notifications group="foo"/>
@@ -65,10 +66,11 @@
           </v-card>
         </v-col>
       </v-row>
+
       <v-row class="mb-6" no-gutters>
         <v-col cols12 sm12>
           <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-row align="center" justify="space-between" v-for="i in Info" :key="i._id">
+            <v-row align="center" justify="space-between" v-for="(i,index) in Info" :key="index">
 
               <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
                 <span>onu: {{ i.interface }}</span>
@@ -94,132 +96,197 @@
         </v-col>
       </v-row>
 
-      <v-row class="mb-6" no-gutters>
 
-        <v-col cols12 sm6>
-          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-list>
+      <v-tabs v-model="tab" centered icons-and-text outlined>
+        <v-tabs-slider color="error"></v-tabs-slider>
 
-              <v-list-item>
-                <p class="title">Mac_Address</p>
-              </v-list-item>
-              <v-list-item>
-                <p class="title">Vlan_Id</p>
-              </v-list-item>
+        <v-tab href="#tab-1">
+          Info
+          <v-icon>mdi-information-variant</v-icon>
+        </v-tab>
 
-            </v-list>
-          </v-card>
-        </v-col>
-        <v-col cols12 sm6>
-          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-list v-for="i in Fdb" :key="i._id">
-
-              <v-list-item>
-                <p class="subtitle-1 text-left" style="color:#696969">{{ i.mac_address }}</p>
-              </v-list-item>
-              <v-list-item>
-                <p class="subtitle-1 text-left" style="color:#00C853">{{ i.vlan_id }}</p>
-              </v-list-item>
-
-            </v-list>
-          </v-card>
-        </v-col>
+        <v-tab href="#tab-2">
+          Logs
+          <v-icon>mdi-border-color</v-icon>
+        </v-tab>
+      </v-tabs>
 
 
-      </v-row>
+      <v-tabs-items v-model="tab">
+        <v-tab-item value="tab-1">
 
-      <v-row class="mb-6" no-gutters>
+          <v-row class="mb-6" no-gutters v-for="i in Fdb" :key="i._id">
 
-        <v-col cols12 sm6>
-          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-list>
+            <v-col cols12 sm6>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-list>
 
-              <v-list-item>
-                <p class="title"> Distance
-                </p>
-              </v-list-item>
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold">Mac_Address</p>
+                  </v-list-item>
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold">Vlan_Id</p>
+                  </v-list-item>
 
-              <v-list-item>
-                <p class="title"> Temp</p>
-              </v-list-item>
+                </v-list>
+              </v-card>
+            </v-col>
+            <v-col cols12 sm6>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-list>
 
-              <v-list-item>
-                <p class="title"> Votage</p>
-              </v-list-item>
-              <v-divider></v-divider>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left" style="color:#696969">{{ i.mac_address }}</p>
+                  </v-list-item>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left" style="color:#1976d2">{{ i.vlan_id }}</p>
+                  </v-list-item>
 
-              <v-list-item>
-                <p class="title"> Rx</p>
-              </v-list-item>
-
-              <v-list-item>
-                <p class="title"> Tx</p>
-              </v-list-item>
-
-
-            </v-list>
-          </v-card>
-        </v-col>
-        <v-col cols12 sm6>
-          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-list v-for="i in Optical" :key="i._id">
-
-              <v-list-item>
-                <p class="subtitle-1 text-left">{{ i.distance }} m</p>
-              </v-list-item>
-
-              <v-list-item>
-                <p class="subtitle-1 text-left">{{ i.temp }} c</p>
-              </v-list-item>
-
-              <v-list-item>
-                <p class="subtitle-1 text-left">{{ i.voltage }} v</p>
-              </v-list-item>
-              <v-divider></v-divider>
-
-              <v-list-item>
-                <p class="subtitle-1 text-left">{{ i.rx }}</p>
-              </v-list-item>
-
-              <v-list-item>
-                <p class="subtitle-1 text-left">{{ i.tx }}</p>
-              </v-list-item>
+                </v-list>
+              </v-card>
+            </v-col>
 
 
-            </v-list>
-          </v-card>
-        </v-col>
+          </v-row>
+
+          <v-row class="mb-6" no-gutters v-for="(i,index) in Optical" :key="index">
+
+            <v-col cols12 sm6>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-list>
+
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold"> Distance
+                    </p>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold"> Temp</p>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold"> Votage</p>
+                  </v-list-item>
+                  <v-divider></v-divider>
+
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold"> Rx</p>
+                  </v-list-item>
+
+                  <v-list-item>
+                    <p class="Heading 4 font-weight-bold"> Tx</p>
+                  </v-list-item>
 
 
-      </v-row>
+                </v-list>
+              </v-card>
+            </v-col>
+            <v-col cols12 sm6>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-list>
 
-      <v-row class="mb-6" no-gutters>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left">{{ i.distance }} m</p>
+                  </v-list-item>
 
-        <v-col cols12 sm6>
-          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-list>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left">{{ i.temp }} c</p>
+                  </v-list-item>
 
-              <v-list-item>
-                <p class="title"> Description</p>
-              </v-list-item>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left">{{ i.voltage }} v</p>
+                  </v-list-item>
+                  <v-divider></v-divider>
 
-            </v-list>
-          </v-card>
-        </v-col>
-        <v-col cols12 sm6>
-          <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-            <v-list>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left">{{ i.rx }}</p>
+                  </v-list-item>
 
-              <v-list-item>
-                <p class="title"> 1404</p>
-              </v-list-item>
+                  <v-list-item>
+                    <p class="subtitle-1 text-left">{{ i.tx }}</p>
+                  </v-list-item>
 
-            </v-list>
-          </v-card>
-        </v-col>
 
-      </v-row>
+                </v-list>
+              </v-card>
+            </v-col>
 
+
+          </v-row>
+
+          <v-row class="mb-6" no-gutters>
+
+            <v-col cols12 sm6>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-list>
+
+                  <v-list-item>
+                    <p class="title"> Description</p>
+                  </v-list-item>
+
+                </v-list>
+              </v-card>
+            </v-col>
+            <v-col cols12 sm6>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-list>
+
+                  <v-list-item>
+                    <p class="title"> 1404</p>
+                  </v-list-item>
+
+                </v-list>
+              </v-card>
+            </v-col>
+
+          </v-row>
+        </v-tab-item>
+
+        <v-tab-item value="tab-2">
+          <v-row class="mb-6" no-gutters v-for="(i,index) in Interface" :key="index">
+            <v-col cols12 sm12>
+              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+                <v-toolbar dense>
+
+
+                  <v-btn-toggle>
+                    <v-icon aria-label="Account" :color="getColor(i.status)">
+                      mdi-ethernet mdi-48px
+                    </v-icon>
+                  </v-btn-toggle>
+                  <v-divider vertical></v-divider>
+                  
+                  <v-btn-toggle>
+                    {{ i.vlan_id }}
+                  </v-btn-toggle>
+                  <v-divider vertical></v-divider>
+
+                  <v-btn-toggle>
+                    {{ i.vlan_mode }}
+                  </v-btn-toggle>
+                  <v-divider vertical></v-divider>
+
+<!--                  <v-btn-toggle>-->
+<!--                     <v-divider vertical></v-divider>-->
+<!--                    {{i.stat_in_octets}}-->
+<!--                     <v-divider vertical></v-divider>-->
+<!--                    {{i.stat_out_octets}}-->
+<!--                     <v-divider vertical></v-divider>-->
+<!--                    {{i.stat_out_octets}}-->
+<!--                     <v-divider vertical></v-divider>-->
+<!--                    {{i.stat_in_crc_pkts}}-->
+<!--                    <v-divider vertical></v-divider>-->
+<!--                    {{i.stat_out_crc_pkts}}-->
+<!--                  </v-btn-toggle>-->
+<!--                  <v-divider vertical></v-divider>-->
+
+
+                </v-toolbar>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-tab-item>
+      </v-tabs-items>
     </v-container>
   </div>
 </template>
@@ -229,14 +296,18 @@ export default {
   name: 'OnuDetail',
   props: ['ip', 'onu'],
   data: () => ({
+    tab: null,
     Info: [],
-    Optical: [],
     Fdb: [],
+    Optical: [],
+    Interface: [],
+
   }),
   created() {
     this.GeneralInfo()
     this.FdbInfo()
     this.OpticalInfo()
+    this.InterfaceInfo()
   },
   methods: {
     async GeneralInfo() {
@@ -244,17 +315,22 @@ export default {
       const Info = response.data.data
       this.Info = Info
     },
+    async FdbInfo() {
+      const response = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.ip + '&interface=' + this.onu)
+      const Fdb = response.data.data
+      this.Fdb = Fdb
+    },
     async OpticalInfo() {
       const response = await this.$api.auth.getAPI('/pon_onts_optical?ip=' + this.ip + '&interface=' + this.onu)
       const Optical = response.data.data
       this.Optical = Optical
     },
-    async FdbInfo() {
-      const response = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.ip + '&interface=' + this.onu)
-      const Fdb = response.data.data
-      this.Fdb = Fdb
-      console.log(this.Fdb)
+    async InterfaceInfo() {
+      const response = await this.$api.auth.getAPI('/pon_interface_info?ip=' + this.ip + '&interface=' + this.onu)
+      const Interface = response.data.data
+      this.Interface = Interface
     },
+
     async RebootOnu() {
       const response = await this.$api.auth.getAPI('/pon_ont_reboot?ip=' + this.ip + '&interface=' + this.onu)
       const data = response.data
@@ -281,10 +357,14 @@ export default {
           duration: 5000
         })
       }
-      console.log('delete onu')
     },
     BackToHome() {
-      window.open('/?ip=' + this.ip, '_blank')
+      window.open('/?ip=' + this.ip, '_top')
+    },
+    getColor(status) {
+      if (status === 'Up') return 'green'
+      else if (status === 'Down') return 'error'
+      else return 'black'
     }
   },
 

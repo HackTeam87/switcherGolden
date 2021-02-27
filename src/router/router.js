@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
-import DeviceInput from '../components/DeviceInput';
 import OltMainPage from '../views/OltMainPage';
 import OnuDetailPage from '../views/OnuDetailPage';
 
@@ -21,13 +20,6 @@ const routes = [
         component: OnuDetailPage,
         props: true
     },
-    {
-        name: 'DeviceInput',
-        path: '/device/input',
-        component: DeviceInput,
-        props: true,
-    },
-
 ];
 
 const router = new VueRouter({

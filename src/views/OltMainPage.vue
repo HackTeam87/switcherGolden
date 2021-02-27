@@ -9,52 +9,63 @@
             class="flex-grow-1 flex-shrink-0"
         >
 
-          <v-data-table
+            <v-card-title>
+              Filter (onu,mac,status,vlan)
+              <v-spacer></v-spacer>
+              <v-text-field
+                  v-model="search"
+                  append-icon="mdi-magnify"
+                  label="Search"
+                  single-line
+                  hide-details
+              ></v-text-field>
+            </v-card-title>
+            <v-data-table
 
-              :headers="headers"
-              :items="OnuStatus"
-              :items-per-page="15"
-              item-key="_id"
-              sort-by="status"
-              class="elevation-1">
+                :headers="headers"
+                :items="filteredItems"
+                :items-per-page="15"
+                item-key="_id"
+                sort-by="status"
+                class="elevation-1">
 
-            <template v-slot:body="{ items }">
+              <template v-slot:body="{ items }">
 
-              <tbody>
-              <tr v-for="item in items" :key="item._id">
-                <td class="text-left">{{ item.interface }}</td>
-                <td class="text-left" style="color:#696969">{{ item.mac_address }}</td>
-                <td class="text-left">
-                  <v-chip
-                      :color="getColor(item.status)"
-                      :disabled="item.status === 'Offline'"
-                      @click="showOnuDetail(item.interface)"
-                      dark
-                  >
-                    {{ item.status }}
-                  </v-chip>
-                </td>
-                <td class="text-left">
+                <tbody>
+                <tr v-for="item in items" :key="item._id">
+                  <td class="text-left">{{ item.interface }}</td>
+                  <td class="text-left" style="color:#696969">{{ item.mac_address }}</td>
+                  <td class="text-left">
+                    <v-chip
+                        :color="getColor(item.status)"
+                        :disabled="item.status === 'Offline'"
+                        @click="showOnuDetail(item.interface)"
+                        dark
+                    >
+                      {{ item.status }}
+                    </v-chip>
+                  </td>
+                  <td class="text-left">
 
-                  <v-chip
-                      :color="getColor(item.admin_status)"
-                      :disabled="item.status === 'Offline'"
-                      @click="showOnuDetail(item.interface)"
-                      dark
-                  >
-                    {{ item.admin_status }}
-                  </v-chip>
+                    <v-chip
+                        :color="getColor(item.admin_status)"
+                        :disabled="item.status === 'Offline'"
+                        @click="showOnuDetail(item.interface)"
+                        dark
+                    >
+                      {{ item.admin_status }}
+                    </v-chip>
 
-                </td>
-                <td class="text-left" style="color:#00C853">{{ item.vlan_id }}</td>
-                <td class="text-left">{{ item.last_reg_since }}</td>
-              </tr>
-              </tbody>
+                  </td>
+                  <td class="text-left" style="color:#1976d2">{{ item.vlan_id }}</td>
+                  <td class="text-left">{{ item.last_reg_since }}</td>
+                </tr>
+                </tbody>
 
-            </template>
+              </template>
 
 
-          </v-data-table>
+            </v-data-table>
 
         </v-col>
       </v-row>
@@ -68,7 +79,8 @@ import DeviceInput from '../components/DeviceInput'
 export default {
   name: 'OltMain',
   data: () => ({
-    deviceIp: "",
+    search: '',
+    deviceIp: '',
     showTable: 0,
     OnuStatus: [],
     headers: [
@@ -82,6 +94,14 @@ export default {
   }),
   components: {
     DeviceInput,
+  },
+  computed: {
+    filteredItems() {
+      return this.OnuStatus.filter((i) => {
+        return !this.search || (i.mac_address + '||' + i.interface +
+            '||' + i.status + '||' + i.vlan_id).toUpperCase().indexOf(this.search.toUpperCase()) !== -1
+      })
+    }
   },
   created() {
     this.deviceIp = this.getIpFromQuery()

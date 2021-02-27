@@ -3,29 +3,22 @@
     <v-main>
 
       <router-view></router-view>
-
-
+      <preloader></preloader>
 
     </v-main>
   </v-app>
 </template>
 
 <script>
+import Preloader from './components/Preloader'
 
 export default {
   name: 'App',
-  data(){
-    return{
-    }
-  },
+  data: () => ({}),
   components: {
+    Preloader
   },
-  created(){
-    },
-  methods: {
-  },
-  watch: {
-  },
+mounted() {}
 }
 </script>
 
