@@ -7,7 +7,7 @@
           :size="100"
           :width="15"
           :value="value"
-          color="error"
+          color="primary"
       >
         {{ value }}
       </v-progress-circular>
@@ -31,15 +31,9 @@ export default {
       if (this.value === 100) {
         return (this.loader = false)
       }
-      this.value += 20
+      this.value += 25
     }, 500)
   },
 }
 </script>
 
-
-<style scoped>
-.v-progress-circular {
-  margin: 1rem;
-}
-</style>

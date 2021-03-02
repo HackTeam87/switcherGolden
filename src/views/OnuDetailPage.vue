@@ -3,11 +3,26 @@
 
     <v-container class="grey lighten-5">
 
-      <notifications group="foo"/>
+      <div class="preloader" v-if="loading && error === '' ">
+        <preloader></preloader>
+      </div>
 
       <v-row class="mb-6" no-gutters>
+
         <v-col cols12 sm12>
+
           <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
+            <notifications group="foo" position="top center" width="100%" style="position: absolute; top: 52%;">
+              <template slot="body">
+                <div class="my-notification">
+                  <v-alert :type="Alert.type" dense outlined>
+                    <p class="title">
+                      {{ Alert.title }}
+                    </p>
+                  </v-alert>
+                </div>
+              </template>
+            </notifications>
             <v-row align="center" justify="space-between">
 
               <v-btn @click="BackToHome()" color="danger">
@@ -111,13 +126,12 @@
         </v-tab>
       </v-tabs>
 
-
       <v-tabs-items v-model="tab">
         <v-tab-item value="tab-1">
-
           <v-row class="mb-6" no-gutters v-for="i in Fdb" :key="i._id">
 
             <v-col cols12 sm6>
+
               <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
                 <v-list>
 
@@ -243,73 +257,84 @@
         </v-tab-item>
 
         <v-tab-item value="tab-2">
-          <v-row class="mb-6" no-gutters v-for="(i,index) in Interface" :key="index">
+          <v-row class="mb-6" no-gutters>
             <v-col cols12 sm12>
-              <v-card class="pa-2" outlined tile hover data-aos="zoom-in" data-aos-easing="ease">
-                <v-toolbar dense>
+
+              <v-data-table
+                  mobile-breakpoint="0"
+                  :headers="headers"
+                  :items="Detailed"
+                  :hide-default-footer="true"
+                  dark
+                  class="elevation-1 blue-grey darken-4">
+
+                <template v-slot:body="{ items }">
+
+                  <tbody>
+                  <tr v-for="item in items" :key="item._id">
+                    <td class="text-left">
+                      <v-icon aria-label="Account" :color="getColor(item.status)">
+                        mdi-ethernet mdi-48px
+                      </v-icon>
+                    </td>
+                    <td class="text-left">{{ item.vlan_mode }}</td>
+                    <td class="text-left">{{ item.uptime }}</td>
+                    <td class="text-left">{{ item.lastReload }}</td>
+                    <td class="text-left">{{ item.counters }}</td>
+                    <td class="text-left">{{ item.errors }}</td>
+                  </tr>
+                  </tbody>
+
+                </template>
 
 
-                  <v-btn-toggle>
-                    <v-icon aria-label="Account" :color="getColor(i.status)">
-                      mdi-ethernet mdi-48px
-                    </v-icon>
-                  </v-btn-toggle>
-                  <v-divider vertical></v-divider>
-                  
-                  <v-btn-toggle>
-                    {{ i.vlan_id }}
-                  </v-btn-toggle>
-                  <v-divider vertical></v-divider>
+              </v-data-table>
 
-                  <v-btn-toggle>
-                    {{ i.vlan_mode }}
-                  </v-btn-toggle>
-                  <v-divider vertical></v-divider>
-
-<!--                  <v-btn-toggle>-->
-<!--                     <v-divider vertical></v-divider>-->
-<!--                    {{i.stat_in_octets}}-->
-<!--                     <v-divider vertical></v-divider>-->
-<!--                    {{i.stat_out_octets}}-->
-<!--                     <v-divider vertical></v-divider>-->
-<!--                    {{i.stat_out_octets}}-->
-<!--                     <v-divider vertical></v-divider>-->
-<!--                    {{i.stat_in_crc_pkts}}-->
-<!--                    <v-divider vertical></v-divider>-->
-<!--                    {{i.stat_out_crc_pkts}}-->
-<!--                  </v-btn-toggle>-->
-<!--                  <v-divider vertical></v-divider>-->
-
-
-                </v-toolbar>
-              </v-card>
             </v-col>
           </v-row>
         </v-tab-item>
       </v-tabs-items>
+
     </v-container>
   </div>
 </template>
 
 <script>
+import Preloader from '../components/Preloader'
+
 export default {
   name: 'OnuDetail',
   props: ['ip', 'onu'],
   data: () => ({
+    loading: '',
+    error: '',
     tab: null,
+    Alert: [],
     Info: [],
     Fdb: [],
     Optical: [],
-    Interface: [],
+    Detailed: [],
+    headers: [
+      {text: 'Status_Eth'},
+      {text: 'VlanMode'},
+      {text: 'Uptime'},
+      {text: 'LastReload'},
+      {text: 'Counters(IN/OUT)'},
+      {text: 'CRC(IN/OUT)'},
+    ],
 
   }),
+  components: {
+    Preloader
+  },
   created() {
     this.GeneralInfo()
     this.FdbInfo()
     this.OpticalInfo()
-    this.InterfaceInfo()
+    this.DetailedInfo()
   },
   methods: {
+
     async GeneralInfo() {
       const response = await this.$api.auth.getAPI('/pon_onts_general_info?ip=' + this.ip + '&interface=' + this.onu)
       const Info = response.data.data
@@ -325,10 +350,29 @@ export default {
       const Optical = response.data.data
       this.Optical = Optical
     },
-    async InterfaceInfo() {
-      const response = await this.$api.auth.getAPI('/pon_interface_info?ip=' + this.ip + '&interface=' + this.onu)
-      const Interface = response.data.data
-      this.Interface = Interface
+    async DetailedInfo() {
+      this.loading = true
+      const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' +
+          this.ip + '&interface=' + this.onu).catch(() => {
+      this.error = 'ERROR'
+    })
+      const response2 = await this.$api.auth.getAPI('/pon_interface_info?ip=' +
+          this.ip + '&interface=' + this.onu).catch(() => {
+      this.error = 'ERROR'
+    })
+      const Detailed = response.data.data
+      const Interface = response2.data.data
+      let lastReload = (new Date(Detailed[0]['last_reg'] * 1000) + '').slice(0, 16)
+      let counters = this.convertSize(Interface[0]['stat_in_octets']) + "/"
+          + this.convertSize(Interface[0]['stat_out_octets'])
+      let errors = Interface[0]['stat_in_crc_pkts'] + "/" + Interface[0]['stat_out_crc_pkts']
+
+      this.Detailed = [{
+        'status': Interface[0]['status'], 'vlan_mode': Interface[0]['vlan_mode'],
+        'uptime': Detailed[0]['last_reg_since'], 'lastReload': lastReload, 'counters': counters, 'errors': errors
+      }]
+
+      this.loading = false
     },
 
     async RebootOnu() {
@@ -337,11 +381,9 @@ export default {
       if (data.statusCode === 200) {
         this.$notify({
           group: 'foo',
-          title: 'Onu successfully reloaded',
-          position: 'top left',
-          type: 'success',
           duration: 5000
         })
+        this.Alert = {title: 'Onu successfully reloaded', type: 'success'}
       }
       console.log(data.statusCode)
     },
@@ -351,11 +393,9 @@ export default {
       if (Delete.statusCode === 200) {
         this.$notify({
           group: 'foo',
-          title: 'Onu successfully deleted',
-          position: 'top left',
-          type: 'error',
           duration: 5000
         })
+        this.Alert = {title: 'Onu successfully deleted', type: 'error'}
       }
     },
     BackToHome() {
@@ -364,13 +404,22 @@ export default {
     getColor(status) {
       if (status === 'Up') return 'green'
       else if (status === 'Down') return 'error'
-      else return 'black'
-    }
+      else return 'yellow'
+    },
+    convertSize: function (el) {
+      let out = '';
+      if (el < 1024) out = el + "B";
+      if (el === 0) out = el;
+      if (el > 1024) out = (el / 1024).toFixed(2) + "K";
+      if (el > 1048576) out = (el / 1048576).toFixed(2) + "M";
+      if (el > 1073741824) out = (el / 1073741824).toFixed(2) + "G";
+      if (el > 1099511627776) out = (el / 1099511627776).toFixed(2) + "T";
+      return out;
+    },
   },
 
 
 }
 </script>
-
 
 

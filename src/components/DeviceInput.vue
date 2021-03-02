@@ -9,7 +9,7 @@
               max-width="310"
           ></v-img>
           <v-spacer></v-spacer>
-          <h2 style="color:orange;">OLT</h2>
+          <h2 style="color:#0275d8">OLT</h2>
           <v-spacer></v-spacer>
           <v-text-field
               v-model="search"
@@ -38,8 +38,6 @@ export default {
       if (this.search !== ''){
         this.$emit('setIp', this.search)
       }
-       // console.log(this.$route)
-      // console.log(this.search)
     }
   },
 

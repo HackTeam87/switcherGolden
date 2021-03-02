@@ -2,6 +2,9 @@
   <div>
     <v-container>
       <DeviceInput @setIp="setDeviceIp"></DeviceInput>
+      <div class="preloader" v-if="loading && error === '' ">
+        <preloader></preloader>
+      </div>
       <v-row no-gutters style="flex-wrap: nowrap;" v-if="showTable === true">
         <v-col
             cols="1"
@@ -9,63 +12,62 @@
             class="flex-grow-1 flex-shrink-0"
         >
 
-            <v-card-title>
-              Filter (onu,mac,status,vlan)
-              <v-spacer></v-spacer>
-              <v-text-field
-                  v-model="search"
-                  append-icon="mdi-magnify"
-                  label="Search"
-                  single-line
-                  hide-details
-              ></v-text-field>
-            </v-card-title>
-            <v-data-table
+          <v-card-title>
+            Filter (onu,mac,status,vlan)
+            <v-spacer></v-spacer>
+            <v-text-field
+                v-model="search"
+                append-icon="mdi-magnify"
+                label="Search"
+                single-line
+                hide-details
+            ></v-text-field>
+          </v-card-title>
+          <v-data-table
+              mobile-breakpoint="0"
+              :headers="headers"
+              :items="filteredItems"
+              :items-per-page="5"
+              item-key="_id"
+              sort-by="status"
+              class="elevation-1">
 
-                :headers="headers"
-                :items="filteredItems"
-                :items-per-page="15"
-                item-key="_id"
-                sort-by="status"
-                class="elevation-1">
+            <template v-slot:body="{ items }">
 
-              <template v-slot:body="{ items }">
+              <tbody>
+              <tr v-for="item in items" :key="item._id">
+                <td class="text-left">{{ item.interface }}</td>
+                <td class="text-left" style="color:#696969">{{ item.mac_address }}</td>
+                <td class="text-left">
+                  <v-chip
+                      :color="getColor(item.status)"
+                      :disabled="item.status === 'Offline'"
+                      @click="showOnuDetail(item.interface)"
+                      dark
+                  >
+                    {{ item.status }}
+                  </v-chip>
+                </td>
+                <td class="text-left">
 
-                <tbody>
-                <tr v-for="item in items" :key="item._id">
-                  <td class="text-left">{{ item.interface }}</td>
-                  <td class="text-left" style="color:#696969">{{ item.mac_address }}</td>
-                  <td class="text-left">
-                    <v-chip
-                        :color="getColor(item.status)"
-                        :disabled="item.status === 'Offline'"
-                        @click="showOnuDetail(item.interface)"
-                        dark
-                    >
-                      {{ item.status }}
-                    </v-chip>
-                  </td>
-                  <td class="text-left">
+                  <v-chip
+                      :color="getColor(item.admin_status)"
+                      :disabled="item.status === 'Offline'"
+                      @click="showOnuDetail(item.interface)"
+                      dark
+                  >
+                    {{ item.admin_status }}
+                  </v-chip>
 
-                    <v-chip
-                        :color="getColor(item.admin_status)"
-                        :disabled="item.status === 'Offline'"
-                        @click="showOnuDetail(item.interface)"
-                        dark
-                    >
-                      {{ item.admin_status }}
-                    </v-chip>
+                </td>
+                <td class="text-left" style="color:#1976d2">{{ item.vlan_id }}</td>
+              </tr>
+              </tbody>
 
-                  </td>
-                  <td class="text-left" style="color:#1976d2">{{ item.vlan_id }}</td>
-                  <td class="text-left">{{ item.last_reg_since }}</td>
-                </tr>
-                </tbody>
-
-              </template>
+            </template>
 
 
-            </v-data-table>
+          </v-data-table>
 
         </v-col>
       </v-row>
@@ -75,10 +77,12 @@
 
 <script>
 import DeviceInput from '../components/DeviceInput'
-
+import Preloader from '../components/Preloader'
 export default {
   name: 'OltMain',
   data: () => ({
+    loading: '',
+    error: '',
     search: '',
     deviceIp: '',
     showTable: 0,
@@ -89,11 +93,11 @@ export default {
       {text: 'Status', value: 'Status'},
       {text: 'Admin_Status', value: 'Admin_Status'},
       {text: 'Vlan_Id', value: 'Vlan_Id'},
-      {text: 'Last_Reg_Since', value: 'Last_Reg_Since'},
     ],
   }),
   components: {
     DeviceInput,
+    Preloader
   },
   computed: {
     filteredItems() {
@@ -111,14 +115,17 @@ export default {
   },
   methods: {
     async getOnuStatus() {
+      this.loading = true
       this.showTable = !this.showTable
       let result = {}
-      const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' + this.deviceIp)
-      const response2 = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.deviceIp)
-
+      const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' + this.deviceIp).catch(() => {
+            this.error = 'ERROR'
+          })
+      const response2 = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.deviceIp).catch(() => {
+            this.error = 'ERROR'
+          })
       response.data.data.forEach(el => {
         result[el._id] = {}
-        result[el._id].last_reg_since = el.last_reg_since
         result[el._id].interface = el.interface
         result[el._id].status = el.status
         result[el._id].admin_status = el.admin_status
@@ -133,6 +140,7 @@ export default {
       for (let i in result) {
         this.OnuStatus.push(result[i])
       }
+      this.loading = false
     },
 
     getColor(status) {
