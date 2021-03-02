@@ -78,6 +78,7 @@
 <script>
 import DeviceInput from '../components/DeviceInput'
 import Preloader from '../components/Preloader'
+
 export default {
   name: 'OltMain',
   data: () => ({
@@ -119,11 +120,11 @@ export default {
       this.showTable = !this.showTable
       let result = {}
       const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' + this.deviceIp).catch(() => {
-            this.error = 'ERROR'
-          })
+        this.error = 'ERROR'
+      })
       const response2 = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.deviceIp).catch(() => {
-            this.error = 'ERROR'
-          })
+        this.error = 'ERROR'
+      })
       response.data.data.forEach(el => {
         result[el._id] = {}
         result[el._id].interface = el.interface

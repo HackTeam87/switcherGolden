@@ -61,7 +61,7 @@
                     </v-toolbar>
                     <v-card-actions class="justify-end">
                       <v-btn text
-                             @click="DeleteOnu() ,dialog.value = false"
+                             @click="DeleteOnu() , dialog.value = false"
                       >
                         Delete
                       </v-btn>
@@ -302,6 +302,8 @@
 <script>
 import Preloader from '../components/Preloader'
 
+let delete_onu = new Audio(require('@/assets/audio/delete_onu.mp3'))
+let reboot_onu = new Audio(require('@/assets/audio/reboot_onu.mp3'))
 export default {
   name: 'OnuDetail',
   props: ['ip', 'onu'],
@@ -334,7 +336,6 @@ export default {
     this.DetailedInfo()
   },
   methods: {
-
     async GeneralInfo() {
       const response = await this.$api.auth.getAPI('/pon_onts_general_info?ip=' + this.ip + '&interface=' + this.onu)
       const Info = response.data.data
@@ -354,12 +355,12 @@ export default {
       this.loading = true
       const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' +
           this.ip + '&interface=' + this.onu).catch(() => {
-      this.error = 'ERROR'
-    })
+        this.error = 'ERROR'
+      })
       const response2 = await this.$api.auth.getAPI('/pon_interface_info?ip=' +
           this.ip + '&interface=' + this.onu).catch(() => {
-      this.error = 'ERROR'
-    })
+        this.error = 'ERROR'
+      })
       const Detailed = response.data.data
       const Interface = response2.data.data
       let lastReload = (new Date(Detailed[0]['last_reg'] * 1000) + '').slice(0, 16)
@@ -383,9 +384,9 @@ export default {
           group: 'foo',
           duration: 5000
         })
+        reboot_onu.play()
         this.Alert = {title: 'Onu successfully reloaded', type: 'success'}
       }
-      console.log(data.statusCode)
     },
     async DeleteOnu() {
       const response = await this.$api.auth.getAPI('/pon_ont_delete?ip=' + this.ip + '&interface=' + this.onu)
@@ -395,6 +396,7 @@ export default {
           group: 'foo',
           duration: 5000
         })
+        delete_onu.play()
         this.Alert = {title: 'Onu successfully deleted', type: 'error'}
       }
     },
