@@ -1,9 +1,9 @@
 <template>
-  <v-app >
-    <v-main >
-
-      <router-view></router-view>
-
+  <v-app>
+    <v-main>
+      <keep-alive>
+        <router-view></router-view>
+      </keep-alive>
     </v-main>
   </v-app>
 </template>
@@ -26,6 +26,7 @@ export default {
   color: #2c3e50;
   /*margin-top: 60px;*/
 }
+
 .v-progress-circular {
   margin: 1rem;
 }

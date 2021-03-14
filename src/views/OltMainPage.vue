@@ -27,9 +27,9 @@
               mobile-breakpoint="0"
               :headers="headers"
               :items="filteredItems"
-              :items-per-page="5"
               item-key="_id"
               sort-by="status"
+              :footer-props="footerProps"
               class="elevation-1">
 
             <template v-slot:body="{ items }">
@@ -82,6 +82,7 @@ import Preloader from '../components/Preloader'
 export default {
   name: 'OltMain',
   data: () => ({
+    footerProps: {'items-per-page-options': [50,75,100, -1]},
     loading: '',
     error: '',
     search: '',
@@ -95,6 +96,7 @@ export default {
       {text: 'Admin_Status', value: 'Admin_Status'},
       {text: 'Vlan_Id', value: 'Vlan_Id'},
     ],
+
   }),
   components: {
     DeviceInput,
