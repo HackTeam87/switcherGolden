@@ -16,7 +16,7 @@ const routes = [
     },
     {
         name: 'OnuDetail',
-        path: '/onu/detail',
+        path: '/detail?ip=:ip&onu=:onu/',
         component: OnuDetailPage,
         props: true
     },
