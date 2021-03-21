@@ -155,7 +155,7 @@
             ,
             showOnuDetail(onu) {
                 this.onuIp = onu
-                this.$router.push({name: 'OnuDetail', params: {ip: this.deviceIp, onu: onu,}})
+                this.$router.push({name: 'OnuDetail', query: {ip: this.deviceIp, onu: onu,}})
             }
             ,
 

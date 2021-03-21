@@ -450,7 +450,6 @@
 
     export default {
         name: 'OnuDetail',
-        // props: ['ip', 'onu'],
         data: () => ({
             renderKey: true,
             ip: '',
@@ -485,16 +484,17 @@
         },
         methods: {
             getIpFromQuery() {
-                if (typeof this.$route.params.ip !== 'undefined') {
-                    return this.$route.params.ip;
+                console.log(this.$route);
+                if (typeof this.$route.query.ip !== 'undefined') {
+                    return this.$route.query.ip;
                 }
 
                 return "";
             },
 
             getOnuFromQuery() {
-                if (typeof this.$route.params.onu !== 'undefined') {
-                    return this.$route.params.onu;
+                if (typeof this.$route.query.onu !== 'undefined') {
+                    return this.$route.query.onu;
                 }
                 return "";
             },
