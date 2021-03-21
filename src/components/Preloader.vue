@@ -31,8 +31,8 @@ export default {
       if (this.value === 100) {
         return (this.loader = false)
       }
-      this.value += 25
-    }, 500)
+      this.value += 20
+    }, 600)
   },
 }
 </script>

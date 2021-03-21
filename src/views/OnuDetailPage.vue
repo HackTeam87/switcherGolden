@@ -481,10 +481,7 @@
         created() {
             this.ip = this.getIpFromQuery()
             this.onu = this.getOnuFromQuery()
-            this.GeneralInfo()
-            this.FdbInfo()
-            this.OpticalInfo()
-            this.DetailedInfo()
+            this.OnuDetailInfo()
         },
         methods: {
             getIpFromQuery() {
@@ -502,31 +499,29 @@
                 return "";
             },
 
-            async GeneralInfo() {
-                const response = await this.$api.auth.PonOntsGeneralInfo(this.ip, this.onu)
-                const Info = response.data.data
-                this.Info = Info
-            },
-            async FdbInfo() {
-                const response = await this.$api.auth.PonFDB(this.ip, this.onu)
-                const Fdb = response.data.data
-                this.Fdb = Fdb
-            },
-            async OpticalInfo() {
-                const response = await this.$api.auth.PonOntsOptical(this.ip, this.onu)
-                const Optical = response.data.data
-                this.Optical = Optical
-            },
-            async DetailedInfo() {
+            async OnuDetailInfo() {
                 this.loading = true
-                const response = await this.$api.auth. PonOntsStatusDetailed(this.ip, this.onu).catch(() => {
+
+                const response1 = await this.$api.auth.PonOntsGeneralInfo(this.ip, this.onu)
+                const Info = response1.data.data
+                this.Info = Info
+
+                const response2 = await this.$api.auth.PonFDB(this.ip, this.onu)
+                const Fdb = response2.data.data
+                this.Fdb = Fdb
+
+                const response3 = await this.$api.auth.PonOntsOptical(this.ip, this.onu)
+                const Optical = response3.data.data
+                this.Optical = Optical
+
+                const response4 = await this.$api.auth.PonOntsStatusDetailed(this.ip, this.onu).catch(() => {
                     this.error = 'ERROR'
                 })
-                const response2 = await this.$api.auth.PonInterfaceInfo(this.ip, this.onu).catch(() => {
+                const response5 = await this.$api.auth.PonInterfaceInfo(this.ip, this.onu).catch(() => {
                     this.error = 'ERROR'
                 })
-                const Detailed = response.data.data
-                const Interface = response2.data.data
+                const Detailed = response4.data.data
+                const Interface = response5.data.data
                 let lastReload = (new Date(Detailed[0]['last_reg'] * 1000) + '').slice(0, 16)
                 let counters = this.convertSize(Interface[0]['stat_in_octets']) + "/"
                     + this.convertSize(Interface[0]['stat_out_octets'])
@@ -544,14 +539,13 @@
                 this.loading = false
             },
 
+
             ReloadComponent() {
                 this.renderKey = false
                 this.$nextTick(() => {
                     // А потом покажем снова
                     this.renderKey = true;
                 });
-                console.log(this.renderKey)
-
             },
 
 
@@ -616,10 +610,7 @@
         watch: {
             renderKey: function () {
                 if (this.renderKey === false) {
-                    this.GeneralInfo()
-                    this.FdbInfo()
-                    this.OpticalInfo()
-                    this.DetailedInfo()
+                    this.OnuDetailInfo()
                 }
             }
         },
