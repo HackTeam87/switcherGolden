@@ -122,10 +122,10 @@
                 this.loading = true
                 this.showTable = !this.showTable
                 let result = {}
-                const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' + this.deviceIp).catch(() => {
+                const response = await this.$api.auth.PonOntsStatusDetailed(this.deviceIp).catch(() => {
                     this.error = 'ERROR'
                 })
-                const response2 = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.deviceIp).catch(() => {
+                const response2 = await this.$api.auth.PonFDB(this.deviceIp).catch(() => {
                     this.error = 'ERROR'
                 })
                 response.data.data.forEach(el => {

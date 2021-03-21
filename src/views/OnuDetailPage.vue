@@ -59,7 +59,7 @@
                                         </v-toolbar>
                                         <v-card-actions class="justify-end">
                                             <v-btn text
-                                                   @click="RebootOnu() , dialog.value = false"
+                                                   @click="ResetOnu() , dialog.value = false"
                                             >
                                                 Reset
                                             </v-btn>
@@ -89,13 +89,13 @@
                                 <template v-slot:default="dialog">
                                     <v-card>
                                         <v-toolbar color="primary" dark>
-                                            do you really want to reload onu?
+                                            do you really want to reboot onu?
                                         </v-toolbar>
                                         <v-card-actions class="justify-end">
                                             <v-btn text
                                                    @click="RebootOnu() , dialog.value = false"
                                             >
-                                                Reload
+                                                Reboot
                                             </v-btn>
                                             <v-spacer></v-spacer>
                                             <v-btn
@@ -157,7 +157,7 @@
                                 <span>onu: {{ i.interface }}</span>
                             </v-chip>
                             <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
-                                status: <span style="color:#00C853"> {{ i.status }}</span>
+                                <span>status: <i :style="{color:getColor(i.status)}">{{ i.status }}</i></span>
                             </v-chip>
                             <v-chip class="ma-2" label color="blue-grey darken-4" text-color="white">
                                 <span>model: {{ i.model }}</span>
@@ -231,12 +231,12 @@
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold">Mac_Address</p>
+                                        <p class="Heading ">MAC</p>
                                         <v-spacer/>
                                     </v-list-item>
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold">Vlan_Id</p>
+                                        <p class="Heading ">VlanID</p>
                                         <v-spacer/>
                                     </v-list-item>
 
@@ -273,32 +273,32 @@
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold"> Distance</p>
+                                        <p class="Heading ">Дистанция</p>
                                         <v-spacer/>
                                     </v-list-item>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold"> Temp</p>
+                                        <p class="Heading "> Температура</p>
                                         <v-spacer/>
                                     </v-list-item>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold"> Votage</p>
+                                        <p class="Heading "> Вольтаж</p>
                                         <v-spacer/>
                                     </v-list-item>
                                     <v-divider></v-divider>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold"> Rx</p>
+                                        <p class="Heading "> Rx</p>
                                         <v-spacer/>
                                     </v-list-item>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="Heading 4 font-weight-bold"> Tx</p>
+                                        <p class="Heading "> Tx</p>
                                         <v-spacer/>
                                     </v-list-item>
 
@@ -313,31 +313,47 @@
                                     <v-list-item>
                                         <v-spacer/>
                                         <p class="subtitle-1 text-left">{{ i.distance }} m</p>
+                                        <v-icon>
+                                            mdi-minus-network
+                                        </v-icon>
                                         <v-spacer/>
                                     </v-list-item>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="subtitle-1 text-left">{{ i.temp }} c</p>
+                                        <p class="subtitle-1 text-left">
+                                            {{ i.temp }}
+                                            <v-icon>mdi-temperature-celsius</v-icon>
+                                        </p>
+
                                         <v-spacer/>
                                     </v-list-item>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="subtitle-1 text-left">{{ i.voltage }} v</p>
+                                        <p class="subtitle-1 text-left">
+                                            {{ i.voltage }}
+                                            <v-icon>
+                                                mdi-flash-outline
+                                            </v-icon>
+                                        </p>
                                         <v-spacer/>
                                     </v-list-item>
                                     <v-divider></v-divider>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="subtitle-1 text-left">{{ i.rx }}</p>
+                                        <p class="subtitle-1 text-left" style="color:green">
+                                            {{ i.rx }}(dBm)
+                                        </p>
                                         <v-spacer/>
                                     </v-list-item>
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="subtitle-1 text-left">{{ i.tx }}</p>
+                                        <p class="subtitle-1 text-left" style="color:green">
+                                            {{ i.tx }}(dBm)
+                                        </p>
                                         <v-spacer/>
                                     </v-list-item>
 
@@ -357,7 +373,7 @@
 
                                     <v-list-item>
                                         <v-spacer/>
-                                        <p class="title"> Description</p>
+                                        <p class="title"> Описание</p>
                                         <v-spacer/>
                                     </v-list-item>
 
@@ -487,28 +503,26 @@
             },
 
             async GeneralInfo() {
-                const response = await this.$api.auth.getAPI('/pon_onts_general_info?ip=' + this.ip + '&interface=' + this.onu)
+                const response = await this.$api.auth.PonOntsGeneralInfo(this.ip, this.onu)
                 const Info = response.data.data
                 this.Info = Info
             },
             async FdbInfo() {
-                const response = await this.$api.auth.getAPI('/pon_fdb?ip=' + this.ip + '&interface=' + this.onu)
+                const response = await this.$api.auth.PonFDB(this.ip, this.onu)
                 const Fdb = response.data.data
                 this.Fdb = Fdb
             },
             async OpticalInfo() {
-                const response = await this.$api.auth.getAPI('/pon_onts_optical?ip=' + this.ip + '&interface=' + this.onu)
+                const response = await this.$api.auth.PonOntsOptical(this.ip, this.onu)
                 const Optical = response.data.data
                 this.Optical = Optical
             },
             async DetailedInfo() {
                 this.loading = true
-                const response = await this.$api.auth.getAPI('/pon_onts_status_detailed?ip=' +
-                    this.ip + '&interface=' + this.onu).catch(() => {
+                const response = await this.$api.auth. PonOntsStatusDetailed(this.ip, this.onu).catch(() => {
                     this.error = 'ERROR'
                 })
-                const response2 = await this.$api.auth.getAPI('/pon_interface_info?ip=' +
-                    this.ip + '&interface=' + this.onu).catch(() => {
+                const response2 = await this.$api.auth.PonInterfaceInfo(this.ip, this.onu).catch(() => {
                     this.error = 'ERROR'
                 })
                 const Detailed = response.data.data
@@ -542,26 +556,38 @@
 
 
             async RebootOnu() {
-                const response = await this.$api.auth.getAPI('/pon_ont_reboot?ip=' + this.ip + '&interface=' + this.onu)
+                const response = await this.$api.auth.PonOntReboot(this.ip, this.onu)
                 const data = response.data
                 if (data.statusCode === 200) {
+                    reboot_onu.play()
                     this.$notify({
                         group: 'foo',
                         duration: 5000
                     })
-                    reboot_onu.play()
-                    this.Alert = {title: 'Onu successfully reloaded', type: 'success'}
+                    this.Alert = {title: 'Onu successfully reboot', type: 'success'}
+                }
+            },
+            async ResetOnu() {
+                const response = await this.$api.auth.PonOntReset(this.ip, this.onu)
+                const Reset = response.data
+                if (Reset.statusCode === 200) {
+                    delete_onu.play()
+                    this.$notify({
+                        group: 'foo',
+                        duration: 5000
+                    })
+                    this.Alert = {title: 'Onu used default configuration ', type: 'error'}
                 }
             },
             async DeleteOnu() {
-                const response = await this.$api.auth.getAPI('/pon_ont_delete?ip=' + this.ip + '&interface=' + this.onu)
+                const response = await this.$api.auth.PonOntDelete(this.ip, this.onu)
                 const Delete = response.data
                 if (Delete.statusCode === 200) {
+                    delete_onu.play()
                     this.$notify({
                         group: 'foo',
                         duration: 5000
                     })
-                    delete_onu.play()
                     this.Alert = {title: 'Onu successfully deleted', type: 'error'}
                 }
             },
@@ -569,10 +595,11 @@
                 this.$router.push({name: 'home'})
             },
             getColor(status) {
-                if (status === 'Up') return 'green'
-                else if (status === 'Down') return 'error'
+                if (status === 'Up' || status === 'Online') return 'green'
+                else if (status === 'Down' || status === 'Offline') return 'error'
                 else return 'yellow'
             },
+
             convertSize: function (el) {
                 let out = '';
                 if (el < 1024) out = el + "B";
